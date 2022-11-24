@@ -1,0 +1,211 @@
+openapi: 3.0.0
+info:
+  version: 0.0.0
+  title: Swagger API Example
+paths:
+  /articles:
+    post:
+      summary: 記事を投稿する
+      operationId: createArticle
+      tags:
+        - Articles API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          $ref: '#/components/responses/IllegalInput'
+    get:
+      summary: 記事一覧を取得する
+      operationId: listArticles
+      tags:
+        - Articles API
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Order'
+        - $ref: '#/components/parameters/OrderBy'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleList'
+  '/articles/{id}':
+    get:
+      summary: 記事を取得する
+      operationId: getArticle
+      tags:
+        - Articles API
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: 記事を編集する
+      operationId: updateArticle
+      tags:
+        - Articles API
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: 記事を削除する
+      operationId: deleteArticle
+      tags:
+        - Articles API
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Success
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Id:
+      description: Resource ID
+      type: string
+      readOnly: true
+      example: "123456"
+    ArticleForList:
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        title:
+          type: string
+          example: ダミータイトル
+        content:
+          type: string
+          example: 記事の本文
+    Article:
+      allOf:
+        - $ref: '#/components/schemas/ArticleForList'
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        title:
+          type: string
+          example: ダミータイトル
+        content:
+          type: string
+          example: 記事の本文
+    ArticleList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ArticleForList'
+    Error:
+      description: |
+        <table>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>illegal_input</td>
+            <td>The input is invalid.</td>
+          </tr>
+          <tr>
+            <td>not_found</td>
+            <td>The resource is not found.</td>
+          </tr>
+        </table>
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: illegal_input
+        message:
+          type: string
+          example: error_message
+  parameters:
+    Id:
+      name: id
+      in: path
+      description: Resource ID
+      required: true
+      schema:
+        $ref: '#/components/schemas/Id'
+    Limit:
+      name: limit
+      in: query
+      description: 記事の取得数を指定する
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+        example: 10
+    Order:
+      name: order
+      in: query
+      description: 記事の並び順を指定する（desc or asc）
+      required: false
+      schema:
+        type: string
+        default: desc
+        example: desc
+    OrderBy:
+      name: orderBy
+      in: query
+      description: 指定した属性で記事を並び替える
+      required: false
+      schema:
+        type: string
+        default: createdAt
+        example: createdAt
+    Offset:
+      name: offset
+      in: query
+      description: 何件目の記事から取得するか指定する
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 10
+  responses:
+    NotFound:
+      description: The resource is not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    IllegalInput:
+      description: The input is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

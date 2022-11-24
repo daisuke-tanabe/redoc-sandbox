@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Swagger sample
+paths:
+  responses:
+    NotFound:
+      description: The resource is not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    IllegalInput:
+      description: The input is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  components:
+    Error:
+      description: |
+        <table>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>illegal_input</td>
+            <td>The input is invalid.</td>
+          </tr>
+          <tr>
+            <td>not_found</td>
+            <td>The resource is not found.</td>
+          </tr>
+        </table>
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: illegal_input
+  /articles:
+    get:
+      summary: 記事一覧を取得する
+      description: 記事の一覧情報をクエリで指定して返します
+      parameters:
+        - name: "limit"
+          in: "query"
+          description: "取得する記事の数"
+          required: false
+        - name: "sort"
+          in: "query"
+          description: "取得する記事の並び順(asc, desc)"
+          required: false
+        - name: "offset"
+          in: "query"
+          description: "何件目の記事から取得するか"
+          required: false
+      responses:
+        '200':
+          description: HTTPステータスコード200と以下の情報を含むJSONオブジェクトを返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: "int64"
+                          example: "1234567"
+                        title:
+                          type: string
+                          example: ダミータイトル
+                        summary:
+                          type: string
+                          example: 概要欄
+                        content:
+                          type: string
+                          example: 記事の本文
+                  totalCount:
+                    type: number
+                    example: 10
+                  limit:
+                    type: number
+                    example: 20
+                  offset:
+                    type: number
+                    example: 0
+  /articles/{id}:
+    get:
+      summary: 記事を取得する
+      description: 指定されたIDの記事情報を返します
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "取得したい記事のID"
+          required: true
+      responses:
+        '200':
+          description: HTTPステータスコード200と以下の情報を含むJSONオブジェクトを返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "1234567"
+                  title:
+                    type: string
+                    example: ダミータイトル
+                  summary:
+                    type: string
+                    example: 概要欄
+                  content:
+                    type: string
+                    example: 記事の本文
+        '404':
+          description: error
+          $ref: '#/components/responses/NotFound'
